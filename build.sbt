@@ -8,7 +8,10 @@ libraryDependencies ++= Seq(
   // You can use it via https://github.com/lightbend/scala-logging
   "ch.qos.logback" % "logback-classic" % "1.2.3",
 
-  "org.scalatest" %% "scalatest" % "3.2.5" % Test
+  "org.scalatest" %% "scalatest" % "3.2.5" % Test,
+
+
+  "org.typelevel" %% "cats-core" % "2.3.0"
 )
 
 assembly / assemblyMergeStrategy := {
