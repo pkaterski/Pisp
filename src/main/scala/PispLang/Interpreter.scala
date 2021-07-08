@@ -1,14 +1,18 @@
 package PispLang
 
+import PispLang.BuildIns.Functions._
+import PispLang.BuildIns.Vars.{BuildInVar, Input}
 import PispLang.Parser._
 import cats.data.{NonEmptyList, StateT}
 import cats.data.StateT.{get, liftF, modify}
 import cats.implicits._
 
 import scala.annotation.tailrec
+import scala.io.StdIn.readLine
 
 object Interpreter extends App {
-  // TODO: use a Map
+  // TODO: it's possible to use a different data type here
+  // Map would work but the name would be redundant, think of something
   type State = List[Definition]
   type EitherStr[A] = Either[String, A]
   type Eval[A] = StateT[EitherStr, State, A]
@@ -57,7 +61,7 @@ object Interpreter extends App {
           case PispBool(true) => eval(t)
           case PispBool(false) => evalCond(PispCond(xs, v.otherwise))
           case _ => oops[PispValue](s"Non-boolean predicate in cond statement:" +
-            s" $p1 which was evaluated from $p" )
+            s" $p1 which was evaluated from $p")
         }
       } yield result
     }
@@ -107,10 +111,10 @@ object Interpreter extends App {
     state <- get[EitherStr, State]
     result <- searchDefinition(v.name, state) match {
       case Some(VarDefinition(_, PispLambda(lambda))) => evalLambdaCall(PispLambdaCall(lambda, v.args))
-      case Some(VarDefinition(_, PispLambdaBuildInLink(func))) => ???
+      case Some(VarDefinition(_, PispLambdaBuildInLink(func))) => evalBuildInFunction(func, v.args)
       case Some(VarDefinition(_, b@_)) => oops[PispValue](s"Can't call value $b with args")
-      case Some(FunctionDefinition(_, lambda)) =>  evalLambdaCall(PispLambdaCall(lambda, v.args))
-      case Some(BuildInFunctionDefinition(func)) => ???
+      case Some(FunctionDefinition(_, lambda)) => evalLambdaCall(PispLambdaCall(lambda, v.args))
+      case Some(BuildInFunctionDefinition(func)) => evalBuildInFunction(func, v.args)
       case Some(b@BuildInVarDefinition(_)) => oops[PispValue](s"Can't eval build-in var $b")
       case None => oops[PispValue](s"Name ${v.name} is undefined")
     }
@@ -128,6 +132,148 @@ object Interpreter extends App {
     }
   } yield result
 
+  def evalBuildInFunction(f: BuildInFunction, args: NonEmptyList[PispValue]): Eval[PispValue] = f match {
+    case Sum => evalBuildInSum(args)
+    case Prod => evalBuildInProd(args)
+    case Add => evalBuildInAdd(args)
+    case Mul => evalBuildInMul(args)
+    case Div => evalBuildInDiv(args)
+    case Sub => evalBuildInSub(args)
+    case Head => evalBuildInHead(args)
+    case Tail => evalBuildInTail(args)
+    case Print => evalBuildInPrint(args) // eager
+    case Debug => evalBuildInDebug(args) // eager
+  }
+
+  def evalBuildInAdd(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(a, b :: Nil) => for {
+      a1 <- eval(a)
+      b1 <- eval(b)
+      result <- (a1, b1) match {
+        case (PispInt(a), PispInt(b)) => (PispInt(a + b): PispValue).pure[Eval]
+        case (PispDouble(a), PispDouble(b)) => (PispDouble(a + b): PispValue).pure[Eval]
+        case (PispInt(a), PispDouble(b)) => (PispDouble(a + b): PispValue).pure[Eval]
+        case (PispDouble(a), PispInt(b)) => (PispDouble(a + b): PispValue).pure[Eval]
+        case _ => oops[PispValue](s"Can't apply add to ${(a, b)} which eval to ${(a1, b1)}")
+      }
+    } yield result
+    case _ => oops[PispValue](s"Can't apply add to $args")
+  }
+
+  def evalBuildInMul(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(a, b :: Nil) => for {
+      a1 <- eval(a)
+      b1 <- eval(b)
+      result <- (a1, b1) match {
+        case (PispInt(a), PispInt(b)) => (PispInt(a * b): PispValue).pure[Eval]
+        case (PispDouble(a), PispDouble(b)) => (PispDouble(a * b): PispValue).pure[Eval]
+        case (PispInt(a), PispDouble(b)) => (PispDouble(a * b): PispValue).pure[Eval]
+        case (PispDouble(a), PispInt(b)) => (PispDouble(a * b): PispValue).pure[Eval]
+        case _ => oops[PispValue](s"Can't apply mul to ${(a, b)} which eval to ${(a1, b1)}")
+      }
+    } yield result
+    case _ => oops[PispValue](s"Can't apply mul to $args")
+  }
+
+  def evalBuildInSub(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(a, b :: Nil) => for {
+      a1 <- eval(a)
+      b1 <- eval(b)
+      result <- (a1, b1) match {
+        case (PispInt(a), PispInt(b)) => (PispInt(a - b): PispValue).pure[Eval]
+        case (PispDouble(a), PispDouble(b)) => (PispDouble(a - b): PispValue).pure[Eval]
+        case (PispInt(a), PispDouble(b)) => (PispDouble(a - b): PispValue).pure[Eval]
+        case (PispDouble(a), PispInt(b)) => (PispDouble(a - b): PispValue).pure[Eval]
+        case _ => oops[PispValue](s"Can't apply sub to ${(a, b)} which eval to ${(a1, b1)}")
+      }
+    } yield result
+    case _ => oops[PispValue](s"Can't apply sub to $args")
+  }
+
+  def evalBuildInDiv(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(a, b :: Nil) => for {
+      a1 <- eval(a)
+      b1 <- eval(b)
+      result <- (a1, b1) match {
+        case (PispInt(a), PispInt(b)) => (PispDouble(a / b): PispValue).pure[Eval]
+        case (PispDouble(a), PispDouble(b)) => (PispDouble(a / b): PispValue).pure[Eval]
+        case (PispInt(a), PispDouble(b)) => (PispDouble(a / b): PispValue).pure[Eval]
+        case (PispDouble(a), PispInt(b)) => (PispDouble(a / b): PispValue).pure[Eval]
+        case _ => oops[PispValue](s"Can't apply div to ${(a, b)} which eval to ${(a1, b1)}")
+      }
+    } yield result
+    case _ => oops[PispValue](s"Can't apply div to $args")
+  }
+
+  def evalBuildInSum(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(PispList(Nil), Nil) => (PispInt(0): PispValue).pure[Eval]
+    case NonEmptyList(PispList(l :: Nil), Nil) => for {
+      l1 <- eval(l)
+      result <- l1 match {
+        case v@PispInt(_) => v.pure[Eval]
+        case v@PispDouble(_) => v.pure[Eval]
+        case v@_ => oops[PispValue](s"Sum received $l which evals to $v and is not a number")
+      }
+    } yield result
+    case NonEmptyList(PispList(a :: b :: xs), Nil) => for {
+      s <- evalBuildInAdd(NonEmptyList.of(a, b))
+      s1 <- evalBuildInAdd(NonEmptyList.of(s, xs: _*))
+    } yield s1
+    case v@_ => oops[PispValue](s"Sum received an invalid arg $v")
+  }
+
+  def evalBuildInProd(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(PispList(Nil), Nil) => (PispInt(1): PispValue).pure[Eval]
+    case NonEmptyList(PispList(l :: Nil), Nil) => for {
+      l1 <- eval(l)
+      result <- l1 match {
+        case v@PispInt(_) => v.pure[Eval]
+        case v@PispDouble(_) => v.pure[Eval]
+        case v@_ => oops[PispValue](s"Prod received $l which evals to $v and is not a number")
+      }
+    } yield result
+    case NonEmptyList(PispList(a :: b :: xs), Nil) => for {
+      s <- evalBuildInMul(NonEmptyList.of(a, b))
+      s1 <- evalBuildInMul(NonEmptyList.of(s, xs: _*))
+    } yield s1
+    case v@_ => oops[PispValue](s"Prod received an invalid arg $v")
+  }
+
+  def evalBuildInHead(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(PispList(x :: _), Nil) => eval(x)
+    case NonEmptyList(PispList(Nil), Nil) => oops("Head received an empty list")
+    case v@_ => oops(s"Head received invalid args: $v")
+  }
+
+  def evalBuildInTail(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(PispList(_ :: xs), Nil) => (PispList(xs): PispValue).pure[Eval]
+    case NonEmptyList(PispList(Nil), Nil) => oops("Head received an empty list")
+    case v@_ => oops(s"Head received invalid args: $v")
+  }
+
+  def evalBuildInPrint(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(x, ret :: Nil) => for {
+      x <- eval(x)
+      _ <- println(x).pure[Eval]
+      ret <- eval(ret)
+    } yield ret
+    case v@_ => oops(s"Print received invalid args: $v")
+  }
+
+  def evalBuildInDebug(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(x, Nil) => for {
+      x <- eval(x)
+      _ <- println(x).pure[Eval]
+    } yield x
+    case v@_ => oops(s"Print received invalid args: $v")
+  }
+
+  def evalBuildInVar(v: BuildInVar): Eval[PispValue] = v match {
+    case Input =>
+      val input = readLine()
+      (PispStr(input): PispValue).pure[Eval]
+  }
+
   def eval(v: PispValue): Eval[PispValue] = v match {
     case v@PispBool(_) => (v: PispValue).pure[Eval]
     case v@PispInt(_) => (v: PispValue).pure[Eval]
@@ -143,7 +289,7 @@ object Interpreter extends App {
     case v@PispFunctionCall(_, _) => evalFunctionCall(v)
     case PispOneArgFunctionCall(name, arg) => evalFunctionCall(PispFunctionCall(name, NonEmptyList.of(arg)))
     case v@PispLambdaBuildInLink(_) => (v: PispValue).pure[Eval]
-    case PispVarBuildInLink(variable) => ???
+    case PispVarBuildInLink(variable) => evalBuildInVar(variable)
   }
 
   def evalStatement(s: PispStatement): Eval[Option[PispValue]] = s match {
@@ -151,19 +297,36 @@ object Interpreter extends App {
     case DefinitionStatement(d) => evalDefinition(d).map(_ => None)
   }
 
+  val buildIns: State = List(
+    BuildInFunctionDefinition(Sum),
+    BuildInFunctionDefinition(Prod),
+    BuildInFunctionDefinition(Add),
+    BuildInFunctionDefinition(Mul),
+    BuildInFunctionDefinition(Sub),
+    BuildInFunctionDefinition(Div),
+    BuildInFunctionDefinition(Head),
+    BuildInFunctionDefinition(Tail),
+    BuildInFunctionDefinition(Print),
+    BuildInFunctionDefinition(Debug),
+    BuildInVarDefinition(Input),
+    VarDefinition("test",PispVar("input")),
+  )
+
   def evalIfParsed(code: String): Unit = {
     val parsed = pispStatement.run(code)
     parsed match {
-      case Some(("", x)) => println(evalStatement(x).run(List()))
+      case Some(("", x)) => println(evalStatement(x).run(buildIns))
       case Some((str, _)) => println(s"not parsed: $str")
       case _ => println("can't parse at all")
     }
   }
 
-  evalIfParsed(" if if false : true else : true : 1 else : 2")
-  evalIfParsed(" cond: case false: 1 case if false: false else: true : 2 else : 3")
-  evalIfParsed(" def x z: def y: 1 y")
-  evalIfParsed(" (lambda x y z: def r: y r)(1 2 3)")
-  evalIfParsed(" (lambda x y z: def f x: x f(y))(1 2 3)")
+//  evalIfParsed(" if if false : true else : true : 1 else : 2")
+//  evalIfParsed(" cond: case false: 1 case if false: false else: true : 2 else : 3")
+//  evalIfParsed(" def x z: def y: 1 y")
+//  evalIfParsed(" (lambda x y z: def r: y r)(1 2 3)")
+//  evalIfParsed(" (lambda x y z: def f x: x f(y))(1 2 3)")
+//  evalIfParsed(" def test: input")
+//    evalIfParsed("test")
 
 }

@@ -41,5 +41,9 @@ object Functions {
     override def getName: String = "print"
   }
 
+  case object Debug extends BuildInFunction {
+    override def getName: String = "debug"
+  }
+
 
 }
