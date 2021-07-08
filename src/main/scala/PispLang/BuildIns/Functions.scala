@@ -29,6 +29,14 @@ object Functions {
     override def getName: String = "sub"
   }
 
+  case object Head extends BuildInFunction {
+    override def getName: String = "head"
+  }
+
+  case object Tail extends BuildInFunction {
+    override def getName: String = "tail"
+  }
+
   case object Print extends BuildInFunction {
     override def getName: String = "print"
   }

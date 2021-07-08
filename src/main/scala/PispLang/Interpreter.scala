@@ -103,9 +103,23 @@ object Interpreter extends App {
     }
   } yield ds
 
+  def evalFunctionCall(v: PispFunctionCall): Eval[PispValue] = for {
+    state <- get[EitherStr, State]
+    result <- searchDefinition(v.name, state) match {
+      case Some(VarDefinition(_, PispLambda(lambda))) => evalLambdaCall(PispLambdaCall(lambda, v.args))
+      case Some(VarDefinition(_, PispLambdaBuildInLink(func))) => ???
+      case Some(VarDefinition(_, b@_)) => oops[PispValue](s"Can't call value $b with args")
+      case Some(FunctionDefinition(_, lambda)) =>  evalLambdaCall(PispLambdaCall(lambda, v.args))
+      case Some(BuildInFunctionDefinition(func)) => ???
+      case Some(b@BuildInVarDefinition(_)) => oops[PispValue](s"Can't eval build-in var $b")
+      case None => oops[PispValue](s"Name ${v.name} is undefined")
+    }
+  } yield result
+
   def evalVar(v: PispVar): Eval[PispValue] = for {
     currDefs <- get[EitherStr, State]
     result <- searchDefinition(v.name, currDefs) match {
+      // TODO after a var is evaluated update the definitions to reflect it for optimization purposes
       case Some(VarDefinition(_, body)) => eval(body)
       case Some(FunctionDefinition(_, lambda)) => eval(PispLambda(lambda))
       case Some(BuildInFunctionDefinition(func)) => eval(PispLambdaBuildInLink(func))
@@ -123,8 +137,13 @@ object Interpreter extends App {
     case v@PispCond(_, _) => evalCond(v)
     case v@PispLambda(_) => (v: PispValue).pure[Eval]
     case v@PispVar(_) => evalVar(v)
+    case v@PispList(_) => (v: PispValue).pure[Eval] // Lists are lazy!
     case v@PispLambdaCall(_, _) => evalLambdaCall(v)
-    case x => ???
+    case PispOneArgLambdaCall(lambda, arg) => evalLambdaCall(PispLambdaCall(lambda, NonEmptyList.of(arg)))
+    case v@PispFunctionCall(_, _) => evalFunctionCall(v)
+    case PispOneArgFunctionCall(name, arg) => evalFunctionCall(PispFunctionCall(name, NonEmptyList.of(arg)))
+    case v@PispLambdaBuildInLink(_) => (v: PispValue).pure[Eval]
+    case PispVarBuildInLink(variable) => ???
   }
 
   def evalStatement(s: PispStatement): Eval[Option[PispValue]] = s match {
@@ -145,5 +164,6 @@ object Interpreter extends App {
   evalIfParsed(" cond: case false: 1 case if false: false else: true : 2 else : 3")
   evalIfParsed(" def x z: def y: 1 y")
   evalIfParsed(" (lambda x y z: def r: y r)(1 2 3)")
+  evalIfParsed(" (lambda x y z: def f x: x f(y))(1 2 3)")
 
 }
