@@ -255,7 +255,7 @@ object Interpreter extends App {
   def evalBuildInPrint(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
     case NonEmptyList(x, ret :: Nil) => for {
       x <- eval(x)
-      _ <- println(x).pure[Eval]
+      _ <- show(x).pure[Eval]
       ret <- eval(ret)
     } yield ret
     case v@_ => oops(s"Print received invalid args: $v")
@@ -264,7 +264,7 @@ object Interpreter extends App {
   def evalBuildInDebug(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
     case NonEmptyList(x, Nil) => for {
       x <- eval(x)
-      _ <- println(x).pure[Eval]
+      _ <- show(x).pure[Eval]
     } yield x
     case v@_ => oops(s"Print received invalid args: $v")
   }
@@ -319,6 +319,7 @@ object Interpreter extends App {
   }
 
   val buildIns: State = List(
+    BuildInFunctionDefinition(Eq),
     BuildInFunctionDefinition(Sum),
     BuildInFunctionDefinition(Prod),
     BuildInFunctionDefinition(Add),
@@ -349,5 +350,59 @@ object Interpreter extends App {
   //  evalIfParsed(" (lambda x y z: def f x: x f(y))(1 2 3)")
   //  evalIfParsed(" def test: input")
   //    evalIfParsed("test")
+
+  def show(p: PispValue): String = p match {
+    case PispBool(b) => b.toString
+    case PispInt(i) => i.toString
+    case PispDouble(d) => d.toString
+    case PispStr(s) => s"\"$s\""
+    case v@PispIf(_, _, _) => v.toString
+    case v@PispCond(_, _) => v.toString
+    case PispLambda(_) => "<lambda function>"
+    case PispVar(n) => s"<variable: $n>"
+    case PispList(_) => "<list>"
+    case v@PispLambdaCall(_, _) => v.toString
+    case v@PispOneArgLambdaCall(lambda, arg) => v.toString
+    case v@PispFunctionCall(_, _) => v.toString
+    case v@PispOneArgFunctionCall(name, arg) => v.toString
+    case v@PispLambdaBuildInLink(_) => v.toString
+    case v@PispVarBuildInLink(variable) => v.toString
+  }
+
+  @tailrec
+  def display(d: List[Option[PispValue]]): Unit = d match {
+    case Some(value) :: xs =>
+      println(value)
+      display(xs)
+    case None :: xs => display(xs)
+    case Nil => ()
+  }
+
+  @tailrec
+  def runREPL(defs: State): Unit = {
+    print("> ")
+    val line = readLine()
+    if (line == "exit")
+      ()
+    else {
+      many(pispStatement).run(line) match {
+        case Some(("", values)) =>
+          values.map(evalStatement).sequence.run(defs) match {
+            case Right((defs1, results)) =>
+              display(results)
+              runREPL(defs1)
+            case Left(err) =>
+              println(err)
+              runREPL(defs)
+          }
+        case _ =>
+          println("bad syntax")
+          runREPL(defs)
+      }
+    }
+  }
+
+  println("Welcome to Pisp!")
+  runREPL(buildIns)
 
 }
