@@ -31,7 +31,11 @@ object Parser {
 
   case class PispVar(name: String) extends PispValue
 
+  case class PispVarBuildInLink(variable: BuildInVar) extends PispValue
+
   case class PispLambda(lambda: Lambda) extends PispValue
+
+  case class PispLambdaBuildInLink(func: BuildInFunction) extends PispValue
 
   case class PispIf(predicate: PispValue, tVal: PispValue, fVal: PispValue) extends PispValue
 
@@ -61,7 +65,7 @@ object Parser {
 
   case class BuildInFunctionDefinition(func: BuildInFunction) extends Definition
 
-  case class BuildInVarDefinition(func: BuildInVar) extends Definition
+  case class BuildInVarDefinition(variable: BuildInVar) extends Definition
 
 
   //  val item: Parser[Char] = for {
