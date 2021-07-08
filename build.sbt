@@ -13,6 +13,7 @@ libraryDependencies ++= Seq(
 
   "org.typelevel" %% "cats-core" % "2.3.0"
 )
+//scalacOptions += "-Xfatal-warnings"
 
 assembly / assemblyMergeStrategy := {
   case PathList("META-INF", xs @ _*) => MergeStrategy.discard

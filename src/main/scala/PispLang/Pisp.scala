@@ -4,7 +4,7 @@ package PispLang
 import PispLang.Parser._
 
 
-object Pisp extends App {
+object Pisp {
 
   println(pispValue.run("[-1.02 123 123 [1] [] -1.04]"))
   println(double.run("-1.03"))

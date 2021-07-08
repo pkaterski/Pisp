@@ -1,6 +1,7 @@
 package PispLang
 
-import cats.data.StateT._
+import PispLang.BuildIns.Functions.BuildInFunction
+import PispLang.BuildIns.Vars.BuildInVar
 import cats.data.{NonEmptyList, StateT}
 import cats.implicits._
 
@@ -57,6 +58,10 @@ object Parser {
   case class FunctionDefinition(name: String, body: Lambda) extends Definition
 
   case class VarDefinition(name: String, body: PispValue) extends Definition
+
+  case class BuildInFunctionDefinition(func: BuildInFunction) extends Definition
+
+  case class BuildInVarDefinition(func: BuildInVar) extends Definition
 
 
   //  val item: Parser[Char] = for {
@@ -186,11 +191,16 @@ object Parser {
     name <- variableString
     vars <- many(ws *> variableString)
     _ <- char(':')
-    defs <- many(ws *> definition)
-    value <- pispValue
     d <- NonEmptyList.fromList(vars) match {
-      case Some(vars) => FunctionDefinition(name, Lambda(vars, defs, value)).pure[Parser]
-      case None => VarDefinition(name, value).pure[Parser]
+      case Some(vars) => for {
+        defs <- many(ws *> definition)
+        value <- pispValue
+        d <- FunctionDefinition(name, Lambda(vars, defs, value)).pure[Parser]
+      } yield d
+      case None => for {
+        value <- pispValue
+        d <- VarDefinition(name, value).pure[Parser]
+      } yield d
     }
   } yield d
 
@@ -234,25 +244,29 @@ object Parser {
     lambda <- pispLambda
   } yield PispOneArgLambdaCall(lambda, arg)
 
-  // TODO: figure out comments
-  lazy val pispValue: Parser[PispValue] = ws *> List(
+  lazy val pispValue: Parser[PispValue] = comments *> ws *> List(
     bool,
     double,
     int,
     pispString,
     pispList,
-    variable,
     pispIf,
     cond,
     pispLambda.map(PispLambda): Parser[PispValue],
     functionCall,
     lambdaCall,
+    variable,
   ).reduceLeft(_ <+> _) <* ws
 
-  lazy val pispValueAdditions: Parser[PispValue] = ws *> List(
+  lazy val pispValueAdditions: Parser[PispValue] = comments *> ws *> List(
     oneArgFunctionCall,
     oneArgLambdaCall,
     pispValue,
+  ).reduceLeft(_ <+> _) <* ws
+
+  lazy val pispStatement: Parser[PispStatement] = comments *> ws *> List(
+    definition.map(DefinitionStatement): Parser[PispStatement],
+    pispValueAdditions.map(ValueStatement): Parser[PispStatement],
   ).reduceLeft(_ <+> _) <* ws
 
 }
