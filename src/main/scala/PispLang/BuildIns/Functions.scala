@@ -5,6 +5,10 @@ object Functions {
     def getName: String
   }
 
+  case object Eq extends BuildInFunction {
+    override def getName: String = "eq"
+  }
+
   case object Sum extends BuildInFunction {
     override def getName: String = "sum"
   }

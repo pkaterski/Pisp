@@ -133,14 +133,15 @@ object Interpreter extends App {
   } yield result
 
   def evalBuildInFunction(f: BuildInFunction, args: NonEmptyList[PispValue]): Eval[PispValue] = f match {
-    case Sum => evalBuildInSum(args)
-    case Prod => evalBuildInProd(args)
+    case Eq => evalBuildInEq(args).map { s: PispValue => s }
+    case Sum => evalBuildInSum(args) // this can be implemented in prelude with add
+    case Prod => evalBuildInProd(args) // this can be implemented in prelude with mul
     case Add => evalBuildInAdd(args)
     case Mul => evalBuildInMul(args)
     case Div => evalBuildInDiv(args)
     case Sub => evalBuildInSub(args)
     case Head => evalBuildInHead(args)
-    case Tail => evalBuildInTail(args)
+    case Tail => evalBuildInTail(args).map { s: PispValue => s }
     case Print => evalBuildInPrint(args) // eager
     case Debug => evalBuildInDebug(args) // eager
   }
@@ -245,8 +246,8 @@ object Interpreter extends App {
     case v@_ => oops(s"Head received invalid args: $v")
   }
 
-  def evalBuildInTail(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
-    case NonEmptyList(PispList(_ :: xs), Nil) => (PispList(xs): PispValue).pure[Eval]
+  def evalBuildInTail(args: NonEmptyList[PispValue]): Eval[PispList] = args match {
+    case NonEmptyList(PispList(_ :: xs), Nil) => PispList(xs).pure[Eval]
     case NonEmptyList(PispList(Nil), Nil) => oops("Head received an empty list")
     case v@_ => oops(s"Head received invalid args: $v")
   }
@@ -266,6 +267,26 @@ object Interpreter extends App {
       _ <- println(x).pure[Eval]
     } yield x
     case v@_ => oops(s"Print received invalid args: $v")
+  }
+
+  def evalBuildInEq(args: NonEmptyList[PispValue]): Eval[PispBool] = args match {
+    case NonEmptyList(x, y :: Nil) => for {
+      x <- eval(x)
+      y <- eval(y)
+      result <- (x, y) match {
+        case (PispBool(a), PispBool(b)) => PispBool(a == b).pure[Eval]
+        case (PispInt(a), PispInt(b)) => PispBool(a == b).pure[Eval]
+        case (PispDouble(a), PispDouble(b)) => PispBool(a == b).pure[Eval]
+        case (PispStr(a), PispStr(b)) => PispBool(a == b).pure[Eval]
+        // no need to test if two non-empty lists are equal
+        case (PispList(Nil), PispList(Nil)) => PispBool(true).pure[Eval]
+        // this is kinda meaningless
+        // case (PispVarBuildInLink(a), PispVarBuildInLink(b)) => PispBool(a == b).pure[Eval]
+        // case (PispLambdaBuildInLink(a), PispLambdaBuildInLink(b)) => PispBool(a == b).pure[Eval]
+        case _ => PispBool(false).pure[Eval]
+      }
+    } yield result
+    case v@_ => oops(s"Eq received invalid args: $v")
   }
 
   def evalBuildInVar(v: BuildInVar): Eval[PispValue] = v match {
@@ -309,7 +330,7 @@ object Interpreter extends App {
     BuildInFunctionDefinition(Print),
     BuildInFunctionDefinition(Debug),
     BuildInVarDefinition(Input),
-    VarDefinition("test",PispVar("input")),
+    VarDefinition("test", PispVar("input")),
   )
 
   def evalIfParsed(code: String): Unit = {
@@ -321,12 +342,12 @@ object Interpreter extends App {
     }
   }
 
-//  evalIfParsed(" if if false : true else : true : 1 else : 2")
-//  evalIfParsed(" cond: case false: 1 case if false: false else: true : 2 else : 3")
-//  evalIfParsed(" def x z: def y: 1 y")
-//  evalIfParsed(" (lambda x y z: def r: y r)(1 2 3)")
-//  evalIfParsed(" (lambda x y z: def f x: x f(y))(1 2 3)")
-//  evalIfParsed(" def test: input")
-//    evalIfParsed("test")
+  //  evalIfParsed(" if if false : true else : true : 1 else : 2")
+  //  evalIfParsed(" cond: case false: 1 case if false: false else: true : 2 else : 3")
+  //  evalIfParsed(" def x z: def y: 1 y")
+  //  evalIfParsed(" (lambda x y z: def r: y r)(1 2 3)")
+  //  evalIfParsed(" (lambda x y z: def f x: x f(y))(1 2 3)")
+  //  evalIfParsed(" def test: input")
+  //    evalIfParsed("test")
 
 }
