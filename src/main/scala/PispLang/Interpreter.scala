@@ -292,7 +292,7 @@ object Interpreter extends App {
       x <- eval(x)
       _ <- println(show(x)).pure[Eval]
     } yield x
-    case v@_ => oops(s"Print received invalid args: $v")
+    case v@_ => oops(s"Debug received invalid args: $v")
   }
 
   def evalBuildInEq(args: NonEmptyList[PispValue]): Eval[PispBool] = args match {

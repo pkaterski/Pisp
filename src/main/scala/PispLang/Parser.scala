@@ -220,7 +220,7 @@ object Parser {
 
   val argsCall: Parser[NonEmptyList[PispValue]] = for {
     _ <- char('(')
-    args <- some(pispValue)
+    args <- some(pispValueAdditions)
     _ <- char(')')
   } yield args
 
