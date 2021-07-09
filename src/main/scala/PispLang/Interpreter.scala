@@ -143,6 +143,7 @@ object Interpreter extends App {
     case Sub => evalBuildInSub(args)
     case Head => evalBuildInHead(args)
     case Tail => evalBuildInTail(args).map { s: PispValue => s }
+    case Cons => evalBuildInCons(args).map { s: PispValue => s }
     case Print => evalBuildInPrint(args) // eager
     case Debug => evalBuildInDebug(args) // eager
   }
@@ -253,6 +254,11 @@ object Interpreter extends App {
     case v@_ => oops(s"Head received invalid args: $v")
   }
 
+  def evalBuildInCons(args: NonEmptyList[PispValue]): Eval[PispList] = args match {
+    case NonEmptyList(x, PispList(xs) :: Nil) => PispList(x :: xs).pure[Eval]
+    case v@_ => oops(s"Cons received invalid args: $v")
+  }
+
   def evalBuildInPrint(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
     case NonEmptyList(x, ret :: Nil) => for {
       x <- eval(x)
@@ -329,6 +335,7 @@ object Interpreter extends App {
     BuildInFunctionDefinition(Div),
     BuildInFunctionDefinition(Head),
     BuildInFunctionDefinition(Tail),
+    BuildInFunctionDefinition(Cons),
     BuildInFunctionDefinition(Print),
     BuildInFunctionDefinition(Debug),
     BuildInVarDefinition(Input),
@@ -417,15 +424,15 @@ object Interpreter extends App {
     }
   }
 
-  interpretFile("./lib/prelude.pisp") match {
-    case Left(err) => println(err)
-    case _ => ()
-  }
+//  interpretFile("./lib/prelude.pisp") match {
+//    case Left(err) => println(err)
+//    case _ => ()
+//  }
 
 
 
-//    println("Welcome to Pisp!")
-//    runREPL(buildIns)
+    println("Welcome to Pisp!")
+    runREPL(buildIns)
 
 
 }
