@@ -138,8 +138,8 @@ object Interpreter {
 
   def evalBuildInFunction(f: BuildInFunction, args: NonEmptyList[PispValue]): Eval[PispValue] = f match {
     case Eq => evalBuildInEq(args).map { s: PispValue => s }
-//    case Sum => evalBuildInSum(args) // this can be implemented in prelude with add
-//    case Prod => evalBuildInProd(args) // this can be implemented in prelude with mul
+    //    case Sum => evalBuildInSum(args) // this can be implemented in prelude with add
+    //    case Prod => evalBuildInProd(args) // this can be implemented in prelude with mul
     case Add => evalBuildInAdd(args)
     case Mul => evalBuildInMul(args)
     case Div => evalBuildInDiv(args)
@@ -212,39 +212,39 @@ object Interpreter {
     case _ => oops[PispValue](s"Can't apply div to $args")
   }
 
-//  def evalBuildInSum(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
-//    case NonEmptyList(PispList(Nil), Nil) => (PispInt(0): PispValue).pure[Eval]
-//    case NonEmptyList(PispList(l :: Nil), Nil) => for {
-//      l1 <- eval(l)
-//      result <- l1 match {
-//        case v@PispInt(_) => v.pure[Eval]
-//        case v@PispDouble(_) => v.pure[Eval]
-//        case v@_ => oops[PispValue](s"Sum received $l which evals to $v and is not a number")
-//      }
-//    } yield result
-//    case NonEmptyList(PispList(a :: b :: xs), Nil) => for {
-//      s <- evalBuildInAdd(NonEmptyList.of(a, b))
-//      s1 <- evalBuildInAdd(NonEmptyList.of(s, xs: _*))
-//    } yield s1
-//    case v@_ => oops[PispValue](s"Sum received an invalid arg $v")
-//  }
-//
-//  def evalBuildInProd(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
-//    case NonEmptyList(PispList(Nil), Nil) => (PispInt(1): PispValue).pure[Eval]
-//    case NonEmptyList(PispList(l :: Nil), Nil) => for {
-//      l1 <- eval(l)
-//      result <- l1 match {
-//        case v@PispInt(_) => v.pure[Eval]
-//        case v@PispDouble(_) => v.pure[Eval]
-//        case v@_ => oops[PispValue](s"Prod received $l which evals to $v and is not a number")
-//      }
-//    } yield result
-//    case NonEmptyList(PispList(a :: b :: xs), Nil) => for {
-//      s <- evalBuildInMul(NonEmptyList.of(a, b))
-//      s1 <- evalBuildInMul(NonEmptyList.of(s, xs: _*))
-//    } yield s1
-//    case v@_ => oops[PispValue](s"Prod received an invalid arg $v")
-//  }
+  //  def evalBuildInSum(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+  //    case NonEmptyList(PispList(Nil), Nil) => (PispInt(0): PispValue).pure[Eval]
+  //    case NonEmptyList(PispList(l :: Nil), Nil) => for {
+  //      l1 <- eval(l)
+  //      result <- l1 match {
+  //        case v@PispInt(_) => v.pure[Eval]
+  //        case v@PispDouble(_) => v.pure[Eval]
+  //        case v@_ => oops[PispValue](s"Sum received $l which evals to $v and is not a number")
+  //      }
+  //    } yield result
+  //    case NonEmptyList(PispList(a :: b :: xs), Nil) => for {
+  //      s <- evalBuildInAdd(NonEmptyList.of(a, b))
+  //      s1 <- evalBuildInAdd(NonEmptyList.of(s, xs: _*))
+  //    } yield s1
+  //    case v@_ => oops[PispValue](s"Sum received an invalid arg $v")
+  //  }
+  //
+  //  def evalBuildInProd(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+  //    case NonEmptyList(PispList(Nil), Nil) => (PispInt(1): PispValue).pure[Eval]
+  //    case NonEmptyList(PispList(l :: Nil), Nil) => for {
+  //      l1 <- eval(l)
+  //      result <- l1 match {
+  //        case v@PispInt(_) => v.pure[Eval]
+  //        case v@PispDouble(_) => v.pure[Eval]
+  //        case v@_ => oops[PispValue](s"Prod received $l which evals to $v and is not a number")
+  //      }
+  //    } yield result
+  //    case NonEmptyList(PispList(a :: b :: xs), Nil) => for {
+  //      s <- evalBuildInMul(NonEmptyList.of(a, b))
+  //      s1 <- evalBuildInMul(NonEmptyList.of(s, xs: _*))
+  //    } yield s1
+  //    case v@_ => oops[PispValue](s"Prod received an invalid arg $v")
+  //  }
 
   def evalBuildInHead(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
     case NonEmptyList(xs, Nil) => for {
@@ -252,7 +252,7 @@ object Interpreter {
       result <- xs1 match {
         case PispList(x :: _) => eval(x)
         case PispList(Nil) => oops("Head received an empty list")
-        case v@_ =>  oops(s"Head received invalid args: $xs, after eval: $v")
+        case v@_ => oops(s"Head received invalid args: $xs, after eval: $v")
       }
     } yield result
     case v@_ => oops(s"Head received invalid args: $v")
@@ -264,7 +264,7 @@ object Interpreter {
       result <- xs1 match {
         case PispList(_ :: xs) => PispList(xs).pure[Eval]
         case PispList(Nil) => oops("Tail received an empty list")
-        case v@_ =>  oops(s"Tail received invalid args: $xs, after eval: $v")
+        case v@_ => oops(s"Tail received invalid args: $xs, after eval: $v")
       }
     } yield result
     case v@_ => oops(s"Tail received invalid args: $v")
@@ -366,8 +366,6 @@ object Interpreter {
 
   val buildIns: State = List(
     BuildInFunctionDefinition(Eq),
-//    BuildInFunctionDefinition(Sum),
-//    BuildInFunctionDefinition(Prod),
     BuildInFunctionDefinition(Add),
     BuildInFunctionDefinition(Mul),
     BuildInFunctionDefinition(Sub),
@@ -391,19 +389,11 @@ object Interpreter {
     }
   }
 
-  //  evalIfParsed(" if if false : true else : true : 1 else : 2")
-  //  evalIfParsed(" cond: case false: 1 case if false: false else: true : 2 else : 3")
-  //  evalIfParsed(" def x z: def y: 1 y")
-  //  evalIfParsed(" (lambda x y z: def r: y r)(1 2 3)")
-  //  evalIfParsed(" (lambda x y z: def f x: x f(y))(1 2 3)")
-  //  evalIfParsed(" def test: input")
-  //    evalIfParsed("test")
-
   def show(p: PispValue): String = p match {
     case PispBool(b) => b.toString
     case PispInt(i) => i.toString
     case PispDouble(d) => d.toString
-    case PispStr(s) => s//s"\"$s\""
+    case PispStr(s) => s //s"\"$s\""
     case v@PispIf(_, _, _) => v.toString
     case v@PispCond(_, _) => v.toString
     case PispLambda(_) => "<lambda function>"
@@ -463,16 +453,6 @@ object Interpreter {
         Left("File didn't parse at all")
     }
   }
-
-//  interpretFile("./lib/prelude.pisp") match {
-//    case Left(err) => println(err)
-//    case _ => ()
-//  }
-
-
-
-//    println("Welcome to Pisp!")
-//    runREPL(buildIns)
 
 
 }
