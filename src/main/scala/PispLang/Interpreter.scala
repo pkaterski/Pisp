@@ -11,7 +11,7 @@ import scala.annotation.tailrec
 import scala.io.Source
 import scala.io.StdIn.readLine
 
-object Interpreter extends App {
+object Interpreter {
   // TODO: it's possible to use a different data type here
   // Map would work but the name would be redundant, think of something
   type State = List[Definition]
@@ -443,10 +443,10 @@ object Interpreter extends App {
     }
   }
 
-  interpretFile("./lib/prelude.pisp") match {
-    case Left(err) => println(err)
-    case _ => ()
-  }
+//  interpretFile("./lib/prelude.pisp") match {
+//    case Left(err) => println(err)
+//    case _ => ()
+//  }
 
 
 

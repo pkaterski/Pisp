@@ -1,0 +1,68 @@
+# com
+def fact n:
+  if eq(n 0): 1
+  else: mul(n fact(sub(n 1)))
+
+def fib n:
+ cond:
+  case eq(n 0): 0
+  case eq(n 1): 1
+  else: add(fib(sub(n 1)) fib(sub(n 2)))
+
+#debug(fib(6))
+
+def range n:
+    def helper i:
+    if eq(i n): cons(n [])
+    else: cons(i helper(add(i 1)))
+
+  helper(1)
+
+#debug(range(10))
+
+def append xs ys:
+  if eq(xs []): ys
+  else: cons( xs@head append( xs@tail ys ))
+
+#debug(append([1 2 3] [4 5 6]))
+
+def foldl f nv xs:
+    if eq(xs []): nv
+    else: foldl (f f (nv xs@head) xs@tail)
+
+def foldr f nv xs:
+    if eq(xs []): nv
+    else: f(xs@head foldr (f nv xs@tail))
+
+def reverse xs:
+    foldl (
+      lambda acc x: cons (x acc)
+      []
+      xs)
+
+#debug(reverse([1 2 3 4 5 6]))
+
+def map g xs:
+    foldr (
+        lambda x rec: cons (g(x) rec)
+        []
+        xs)
+
+#debug(map(lambda x: eq(x 1) [1 2 3 4 3 2 1]))
+
+def filter p xs:
+    foldr(
+        lambda x rec:
+            if p(x): cons(x rec)
+            else: rec
+        []
+        xs)
+
+#debug(filter(lambda x: eq(x 1) [1 2 3 4 3 2 1]))
+
+def not p:
+  if p: false
+  else: true
+
+#debug(not(true))
+#debug(not(false))
