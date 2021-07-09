@@ -1,0 +1,92 @@
+def and x y:
+  if eq(x true): if eq(y true): true else: false
+  else: false
+
+def or x y:
+  if eq(x true): true
+  else: if eq(y true): true else: false
+
+def null xs:
+  if eq(xs []): true
+  else: false
+
+def all p xs:
+  foldr(and true map(p xs))
+
+def length xs:
+  if eq(xs []): 0
+  else: add(1 length(xs@tail))
+
+def any p xs:
+  def notF f: lambda x: not(f(x))
+  not(all(notF(p) xs))
+
+def concat xss:
+  foldr(append [] xss)
+
+def rows xss:
+  xss
+
+
+def cols xss:
+  if or(null(xss) any(null xss)): []
+  else: cons (map(head xss) cols(map(tail xss)))
+
+
+def matrixRef xss i j:
+  listRef(listRef (xss i) j)
+
+
+def set xs i x:
+  if eq(i 0): cons(x xs@tail)
+  else: cons(
+          xs@head
+          set(xs@tail sub(i 1) x))
+
+
+def place xss i j x:
+  set(xss i set(listRef(xss i) j x))
+
+debug(place([[1 2 3] [4 5 6] [7 8 9]] 1 1 999))
+
+
+#def diag xss:
+#  (define (go i n)
+#    (if (>= i n)
+#        '()
+#        (cons (matrix-ref xss i i) (go (+ i 1) n))))
+#  go (0 (length xss)))
+#
+#
+#; 09.
+#(define (diags xss)
+#  (cons
+#    (diag xss)
+#    (cons (diag (map reverse xss)) '())))
+#
+#
+#; 10.
+#(define (map-matrix f xss) 
+#  (map (lambda (xs) (map f xs)) xss))
+#
+#
+#; 11.
+#(define (filter-matrix p? xss)
+#  (map (lambda (xs) (filter p? xs)) xss))
+#
+#
+#; 12.
+#(define (zip-with f xs ys) 
+#  (if (or (null? xs) (null? ys))
+#      '()
+#      (cons
+#        (f (car xs) (car ys))
+#        (zip-with f (cdr xs) (cdr ys)))))
+#
+#
+#; 13.
+#(define (zip xs ys) (zip-with cons xs ys))
+#
+#(define (zip-matrix xss yss) 
+#  (zip-with zip xss yss))
+#

@@ -5,6 +5,7 @@ import PispLang.Parser._
 
 
 object Pisp extends App {
+  println(pispList.run("[1 2 [1 2]@head]"))
 
   val lib = interpretFile("./lib/prelude.pisp")
 
@@ -18,7 +19,10 @@ object Pisp extends App {
       println("Welcome to Pisp!")
       runREPL(defs)
     } else if (args.length == 2 && args(0) == "f") {
-      interpretFile(args(1))
+      interpretFile(args(1)) match {
+        case Right(_) => ()
+        case Left(err) => println(s"File not interpreted properly: $err")
+      }
     } else {
       println("Invalid arguments")
     }

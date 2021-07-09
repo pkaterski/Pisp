@@ -144,6 +144,7 @@ object Interpreter {
     case Head => evalBuildInHead(args)
     case Tail => evalBuildInTail(args).map { s: PispValue => s }
     case Cons => evalBuildInCons(args).map { s: PispValue => s }
+    case ListRef => evalBuildInListRef(args)
     case Print => evalBuildInPrint(args) // eager
     case Debug => evalBuildInDebug(args) // eager
   }
@@ -278,6 +279,22 @@ object Interpreter {
     case v@_ => oops(s"Cons received invalid args: $v")
   }
 
+  def evalBuildInListRef(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(xs, i :: Nil) => for {
+      xs1 <- eval(xs)
+      i1 <- eval(i)
+      result <- (xs1, i1) match {
+        case (PispList(y :: _), PispInt(0)) => eval(y)
+        case (PispList(Nil), PispInt(0)) => oops("ListRef is out of range")
+        case (PispList(_ :: ys), PispInt(i)) if i > 0 =>
+          evalBuildInListRef(NonEmptyList.of(PispList(ys), PispInt(i - 1)))
+        case (PispList(_ :: ys), PispInt(i)) if i < 0 => oops("ListRef is out of range")
+        case _ => oops(s"ListRef received a non-list 2nd arg $xs after eval $xs1")
+      }
+    } yield result
+    case v@_ => oops(s"ListRef received invalid args: $v")
+  }
+
   def evalBuildInPrint(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
     case NonEmptyList(x, ret :: Nil) => for {
       x <- eval(x)
@@ -355,6 +372,7 @@ object Interpreter {
     BuildInFunctionDefinition(Head),
     BuildInFunctionDefinition(Tail),
     BuildInFunctionDefinition(Cons),
+    BuildInFunctionDefinition(ListRef),
     BuildInFunctionDefinition(Print),
     BuildInFunctionDefinition(Debug),
     BuildInVarDefinition(Input),

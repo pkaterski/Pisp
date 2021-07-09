@@ -131,10 +131,11 @@ object Parser {
   } yield PispStr(x)
 
   val ws: Parser[String] = many(sat(s => s.isSpaceChar || s == '\t' || s == '\n')).map(_.mkString)
+  val wsSome: Parser[String] = some(sat(s => s.isSpaceChar || s == '\t' || s == '\n')).map(_.toList.mkString)
 
   lazy val pispList: Parser[PispValue] = for {
     _ <- char('[')
-    xs <- many(pispValue)
+    xs <- many(pispValueAdditions)
     _ <- char(']')
   } yield PispList(xs)
 
@@ -163,6 +164,7 @@ object Parser {
 
   val pispIf: Parser[PispValue] = for {
     _ <- string("if")
+    _ <- wsSome
     p <- pispValue
     _ <- char(':')
     t <- pispValue
@@ -191,7 +193,7 @@ object Parser {
 
   lazy val definition: Parser[Definition] = for {
     _ <- string("def")
-    _ <- ws
+    _ <- wsSome
     name <- variableString
     vars <- many(ws *> variableString)
     _ <- char(':')
@@ -212,6 +214,7 @@ object Parser {
 
   val pispLambda: Parser[Lambda] = for {
     _ <- string("lambda")
+    _ <- wsSome
     vars <- some(ws *> variableString)
     _ <- ws *> char(':')
     defs <- many(ws *> definition)

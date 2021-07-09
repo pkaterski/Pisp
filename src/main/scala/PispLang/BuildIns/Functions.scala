@@ -45,6 +45,10 @@ object Functions {
     override def getName: String = "cons"
   }
 
+  case object ListRef extends BuildInFunction {
+    override def getName: String = "listRef"
+  }
+
   case object Print extends BuildInFunction {
     override def getName: String = "print"
   }

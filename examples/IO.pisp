@@ -1,0 +1,4 @@
+debug("Kak se kazvash?")
+def i: input
+debug("priqtno mi e")
+debug(i)
