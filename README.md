@@ -1,6 +1,7 @@
 # The Pisp Programming Language
-![alt text](https://github.com/scala-fmi-classroom/final-project-pkaterski/blob/master/img/IMG_20210709_103705.jpg| width=100)
-<img src="https://github.com/scala-fmi-classroom/final-project-pkaterski/blob/master/img/IMG_20210709_103705.jpg" width="100">
+
+<img src="https://github.com/scala-fmi-classroom/final-project-pkaterski/blob/master/img/IMG_20210709_103705.jpg" width="400">
+
 It's a lisp with a python-like syntax!
 
 A FP language of the future but also from the past ;)
