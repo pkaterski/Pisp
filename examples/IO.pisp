@@ -1,4 +1,7 @@
 debug("Kak se kazvash?")
 def i: input
-debug("priqtno mi e")
+i
+debug("priqtno mi e,")
 debug(i)
+debug("I ne zabravqi, SAMO FP!!1 OOP-to trqbva da umre")
+debug("Da jivee Pisp!!")

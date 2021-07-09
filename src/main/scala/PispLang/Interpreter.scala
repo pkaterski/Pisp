@@ -4,7 +4,7 @@ import PispLang.BuildIns.Functions._
 import PispLang.BuildIns.Vars.{BuildInVar, Input}
 import PispLang.Parser._
 import cats.data.{NonEmptyList, StateT}
-import cats.data.StateT.{get, liftF, modify}
+import cats.data.StateT.{get, liftF, modify, set}
 import cats.implicits._
 
 import scala.annotation.tailrec
@@ -124,8 +124,11 @@ object Interpreter {
   def evalVar(v: PispVar): Eval[PispValue] = for {
     currDefs <- get[EitherStr, State]
     result <- searchDefinition(v.name, currDefs) match {
-      // TODO after a var is evaluated update the definitions to reflect it for optimization purposes
-      case Some(VarDefinition(_, body)) => eval(body)
+      case Some(VarDefinition(_, body)) => for {
+        r <- eval(body)
+        // TODO do it a better way
+        _ <- set[EitherStr, State](VarDefinition(v.name, r) :: currDefs)
+      } yield r
       case Some(FunctionDefinition(_, lambda)) => eval(PispLambda(lambda))
       case Some(BuildInFunctionDefinition(func)) => eval(PispLambdaBuildInLink(func))
       case Some(BuildInVarDefinition(variable)) => eval(PispVarBuildInLink(variable))
@@ -400,7 +403,7 @@ object Interpreter {
     case PispBool(b) => b.toString
     case PispInt(i) => i.toString
     case PispDouble(d) => d.toString
-    case PispStr(s) => s"\"$s\""
+    case PispStr(s) => s//s"\"$s\""
     case v@PispIf(_, _, _) => v.toString
     case v@PispCond(_, _) => v.toString
     case PispLambda(_) => "<lambda function>"

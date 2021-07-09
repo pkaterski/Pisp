@@ -5,7 +5,6 @@ import PispLang.Parser._
 
 
 object Pisp extends App {
-  println(pispList.run("[1 2 [1 2]@head]"))
 
   val lib = interpretFile("./lib/prelude.pisp")
 
