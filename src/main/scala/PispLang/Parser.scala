@@ -271,6 +271,6 @@ object Parser {
   lazy val pispStatement: Parser[PispStatement] = comments *> ws *> List(
     definition.map(DefinitionStatement): Parser[PispStatement],
     pispValueAdditions.map(ValueStatement): Parser[PispStatement],
-  ).reduceLeft(_ <+> _) <* ws
+  ).reduceLeft(_ <+> _) <* ws <* comments
 
 }

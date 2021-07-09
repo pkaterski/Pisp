@@ -8,6 +8,7 @@ import cats.data.StateT.{get, liftF, modify}
 import cats.implicits._
 
 import scala.annotation.tailrec
+import scala.io.Source
 import scala.io.StdIn.readLine
 
 object Interpreter extends App {
@@ -255,7 +256,7 @@ object Interpreter extends App {
   def evalBuildInPrint(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
     case NonEmptyList(x, ret :: Nil) => for {
       x <- eval(x)
-      _ <- show(x).pure[Eval]
+      _ <- println(show(x)).pure[Eval]
       ret <- eval(ret)
     } yield ret
     case v@_ => oops(s"Print received invalid args: $v")
@@ -264,7 +265,7 @@ object Interpreter extends App {
   def evalBuildInDebug(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
     case NonEmptyList(x, Nil) => for {
       x <- eval(x)
-      _ <- show(x).pure[Eval]
+      _ <- println(show(x)).pure[Eval]
     } yield x
     case v@_ => oops(s"Print received invalid args: $v")
   }
@@ -402,7 +403,29 @@ object Interpreter extends App {
     }
   }
 
-  println("Welcome to Pisp!")
-  runREPL(buildIns)
+  def interpretFile(path: String): EitherStr[(State, List[Option[PispValue]])] = {
+    val buffer = Source.fromFile(path)
+    val code = buffer.getLines.mkString("\n")
+    buffer.close
+    many(pispStatement).run(code) match {
+      case Some(("", values)) =>
+        values.map(evalStatement).sequence.run(buildIns)
+      case Some((s, _)) =>
+        Left(s"file didn't parse after $s")
+      case None =>
+        Left("File didn't parse at all")
+    }
+  }
+
+  interpretFile("./lib/prelude.pisp") match {
+    case Left(err) => println(err)
+    case _ => ()
+  }
+
+
+
+//    println("Welcome to Pisp!")
+//    runREPL(buildIns)
+
 
 }
