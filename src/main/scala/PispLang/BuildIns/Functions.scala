@@ -9,13 +9,13 @@ object Functions {
     override def getName: String = "eq"
   }
 
-  case object Sum extends BuildInFunction {
-    override def getName: String = "sum"
-  }
-
-  case object Prod extends BuildInFunction {
-    override def getName: String = "prod"
-  }
+//  case object Sum extends BuildInFunction {
+//    override def getName: String = "sum"
+//  }
+//
+//  case object Prod extends BuildInFunction {
+//    override def getName: String = "prod"
+//  }
 
   case object Add extends BuildInFunction {
     override def getName: String = "add"
