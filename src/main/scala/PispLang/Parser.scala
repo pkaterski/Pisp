@@ -196,7 +196,7 @@ object Parser {
     _ <- wsSome
     name <- variableString
     vars <- many(ws *> variableString)
-    _ <- char(':')
+    _ <- ws *> char(':')
     d <- NonEmptyList.fromList(vars) match {
       case Some(vars) => for {
         defs <- many(ws *> definition)
