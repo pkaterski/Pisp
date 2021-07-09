@@ -377,7 +377,6 @@ object Interpreter {
     BuildInFunctionDefinition(Print),
     BuildInFunctionDefinition(Debug),
     BuildInVarDefinition(Input),
-    VarDefinition("test", PispVar("input")),
   )
 
   def evalIfParsed(code: String): Unit = {
