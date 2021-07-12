@@ -5,7 +5,7 @@ import PispLang.Parser._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-class InterpreterTest extends AnyFlatSpec with Matchers  {
+class InterpreterTest extends AnyFlatSpec with Matchers {
   "prelude" should "not have any errors" in {
     interpretFile("./lib/prelude.pisp", buildIns).isRight shouldBe true
   }
@@ -78,6 +78,6 @@ class InterpreterTest extends AnyFlatSpec with Matchers  {
   }
   "basic build-in Cons" should "work" in {
     pispStatement.run("cons(1 [2 3])").map(s => evalStatement(s._2).run(buildIns).map(_._2)) shouldBe
-      Some(Right(Some(PispList(List(PispInt(1),PispInt(2), PispInt(3))))))
+      Some(Right(Some(PispList(List(PispInt(1), PispInt(2), PispInt(3))))))
   }
 }
