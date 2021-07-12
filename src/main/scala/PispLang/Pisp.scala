@@ -25,7 +25,7 @@ object Pisp extends App {
 
   def printHelp(): Unit = {
     println("The Pisp Programming Language / HELP /\n\n/ OPTIONS /\n")
-    println("pisp repl  -- runs the pisp repl")
+    println("pisp repl          -- runs the pisp repl")
     println("pisp f <filename>  -- interprets a specific file")
   }
 
