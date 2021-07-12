@@ -106,7 +106,7 @@ input == ? # a variable with a side effect: user input, each time when called it
 
 Pisp provides a REPL where you can play around:
 
-<img align="center" src="https://github.com/pkaterski/Pisp/blob/master/img/repl.png" width="600">
+<img align="center" src="https://github.com/pkaterski/Pisp/blob/master/img/repl.png" width="900">
 
 ### Interpret Files
 
@@ -125,7 +125,7 @@ debug(map(strToChars [
 debug("And never forget - There shall only be FP!!1 The OOP has to die.")
 debug("Long live Pisp!!")
 ```
-output:
-<img align="center" src="https://github.com/pkaterski/Pisp/blob/master/img/file_IO_example.png" width="600">
+output:  
+<img align="center" src="https://github.com/pkaterski/Pisp/blob/master/img/file_IO_example.png" width="1000">
 
 
