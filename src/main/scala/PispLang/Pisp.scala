@@ -23,10 +23,18 @@ object Pisp extends App {
       run(buildIns)
   }
 
+  def printHelp(): Unit = {
+    println("The Pisp Programming Language / HELP /\n\n/ OPTIONS /\n")
+    println("pisp repl  -- runs the pisp repl")
+    println("pisp f <filename>  -- interprets a specific file")
+  }
+
   def run(defs: State): Unit = {
     if (args.length == 1 && args(0) == "repl") {
       println("Welcome to Pisp!")
       runREPL(defs)
+    } else if (args.length == 1 && (args(0) == "help" || args(0) == "h" || args(0) == "--help" || args(0) == "-h")) {
+      printHelp()
     } else if (args.length == 2 && args(0) == "f") {
       interpretFile(args(1), defs) match {
         case Right(_) => ()
@@ -34,6 +42,7 @@ object Pisp extends App {
       }
     } else {
       println("Invalid arguments")
+      printHelp()
     }
   }
 
