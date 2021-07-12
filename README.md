@@ -107,7 +107,7 @@ input == ? # a variable with a side effect: user input, each time when called it
 1. To install the Pisp Programming Language you first need to have java installed. Download OpenJDK 11 from [here](https://adoptopenjdk.net/).
 2. Download the latest release of Pisp (which is the jar file `pisp.jar`) from [here](https://github.com/pkaterski/Pisp/releases).
 3. Put the `pisp.jar` file in a convenient place. Then create an alias for `java -jar PATH/TO/pisp.jar`. You can do this by adding `alias pisp="java -jar <PATH>/pisp.jar"` to  your `.bashrc` (linux) or `.zshrc` (default on mac, also on linux if you use zshell). Not sure how to do this on windows. Restart your shell.
-4. In your home directory create a `.pisp` folder which contains a `lib` subfolder. In the `lib` subfolder add the file `prelude.pisp` which can be downloaded from [here](https://github.com/pkaterski/Pisp/blob/master/lib/prelude.pisp).
+4. In your home directory create a `.pisp` folder which contains a `lib` subfolder. In the `lib` subfolder add the file `prelude.pisp` which can be downloaded from [here](https://github.com/pkaterski/Pisp/blob/master/lib/prelude.pisp). This is the Pisp standart library which will be included in the REPL and when interpreting files.
 5. In your terminal type `pisp repl` for the REPL or `pisp f <filename>` to interpret a file.
 6. Enjoy
 
