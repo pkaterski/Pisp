@@ -2,14 +2,25 @@ package PispLang
 
 import PispLang.Interpreter.{State, buildIns, interpretFile, runREPL}
 
+import java.io.FileNotFoundException
+
 
 object Pisp extends App {
 
-  val lib = interpretFile("./lib/prelude.pisp", buildIns)
+  val preludePath = System.getProperty("user.home") + "/.pisp/lib/prelude.pisp"
+  val lib = try {
+    interpretFile(preludePath, buildIns)
+  } catch {
+    case _: FileNotFoundException => Left(s"Can find the prelude at the path $preludePath")
+    case e: Exception => Left(s"Error reading file: ${e.toString}")
+  }
 
   lib match {
-    case Right((defs, _)) => run(defs)
-    case Left(err) => println(s"Err: The Prelude Can't Load: $err")
+    case Right((defs, _)) =>
+      run(defs)
+    case Left(err) =>
+      println(s"Err: The Prelude Can't Load: $err")
+      run(buildIns)
   }
 
   def run(defs: State): Unit = {
