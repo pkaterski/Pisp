@@ -40,6 +40,11 @@ def reverse xs:
       []
       xs)
 
+def concat xs:
+  foldl(append [] xs)
+
+#debug([[1 2 3] [4 5 6] [7 8 9]]@concat)
+
 #debug(reverse([1 2 3 4 5 6]))
 
 def map g xs:
