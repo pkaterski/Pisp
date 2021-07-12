@@ -1,6 +1,6 @@
 # The Pisp Programming Language
 
-<img align="center" src="https://github.com/pkaterski/Pisp/blob/master/img/IMG_20210709_103705.jpg" width="400">
+<img align="center" src="https://github.com/pkaterski/Pisp/blob/master/img/logo.jpg" width="400">
 
 It's a lisp with a python-like syntax!
 
