@@ -203,7 +203,7 @@ object Interpreter {
       a1 <- eval(a)
       b1 <- eval(b)
       result <- (a1, b1) match {
-        case (PispInt(a), PispInt(b)) => (PispDouble((a:Double) / (b: Double)): PispValue).pure[Eval]
+        case (PispInt(a), PispInt(b)) => (PispDouble((a: Double) / (b: Double)): PispValue).pure[Eval]
         case (PispDouble(a), PispDouble(b)) => (PispDouble(a / b): PispValue).pure[Eval]
         case (PispInt(a), PispDouble(b)) => (PispDouble(a / b): PispValue).pure[Eval]
         case (PispDouble(a), PispInt(b)) => (PispDouble(a / b): PispValue).pure[Eval]
