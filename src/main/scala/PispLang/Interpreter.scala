@@ -149,6 +149,8 @@ object Interpreter {
     case Tail => evalBuildInTail(args).map { s: PispValue => s }
     case Cons => evalBuildInCons(args).map { s: PispValue => s }
     case ListRef => evalBuildInListRef(args)
+    case StrToChars => evalBuildInStrToChars(args)
+    case StrFromChars => evalBuildInStrFromChars(args)
     case Print => evalBuildInPrint(args) // eager
     case Debug => evalBuildInDebug(args) // eager
   }
@@ -283,6 +285,40 @@ object Interpreter {
     case v@_ => oops(s"Cons received invalid args: $v")
   }
 
+  def evalBuildInStrToChars(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(x, Nil) => for {
+      x1 <- eval(x)
+      result <- x1 match {
+        case PispStr(s) => PispList(s.toCharArray.map(PispChar).toList).pure[Eval]
+        case v@_ => oops(s"strToChars received non-string arg: $x, after eval: $v")
+      }
+    } yield result
+    case v@_ => oops(s"strToChars received invalid args: $v")
+  }
+
+  def evalBuildInStrFromChars(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(xs, Nil) => for {
+      xs1 <- eval(xs)
+      result <- xs1 match {
+        case PispList(xs) => strFromPispChars(xs).map(PispStr)
+        case v@_ => oops(s"strFromChars received non-list args: $xs, after eval: $v")
+      }
+    } yield result
+    case v@_ => oops(s"strFromChars received invalid args: $v")
+  }
+
+  def strFromPispChars(list: List[PispValue]): Eval[String] = list match {
+    case x :: xs => for {
+      x1 <- eval(x)
+      c <- x1 match {
+        case PispChar(c) => c.pure[Eval]
+        case v@_ => oops[Char](s"strFromChars received a non-char arg $x, which evals to $v")
+      }
+      cs <- strFromPispChars(xs)
+    } yield c + cs
+    case Nil => "".pure[Eval]
+  }
+
   def evalBuildInListRef(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
     case NonEmptyList(xs, i :: Nil) => for {
       xs1 <- eval(xs)
@@ -346,6 +382,7 @@ object Interpreter {
     case v@PispBool(_) => (v: PispValue).pure[Eval]
     case v@PispInt(_) => (v: PispValue).pure[Eval]
     case v@PispDouble(_) => (v: PispValue).pure[Eval]
+    case v@PispChar(_) => (v: PispValue).pure[Eval]
     case v@PispStr(_) => (v: PispValue).pure[Eval]
     case v@PispIf(_, _, _) => evalIf(v)
     case v@PispCond(_, _) => evalCond(v)
@@ -375,6 +412,8 @@ object Interpreter {
     BuildInFunctionDefinition(Tail),
     BuildInFunctionDefinition(Cons),
     BuildInFunctionDefinition(ListRef),
+    BuildInFunctionDefinition(StrToChars),
+    BuildInFunctionDefinition(StrFromChars),
     BuildInFunctionDefinition(Print),
     BuildInFunctionDefinition(Debug),
     BuildInVarDefinition(Input),
@@ -393,6 +432,7 @@ object Interpreter {
     case PispBool(b) => b.toString
     case PispInt(i) => i.toString
     case PispDouble(d) => d.toString
+    case PispChar(c) => c.toString
     case PispStr(s) => s //s"\"$s\""
     case v@PispIf(_, _, _) => v.toString
     case v@PispCond(_, _) => v.toString

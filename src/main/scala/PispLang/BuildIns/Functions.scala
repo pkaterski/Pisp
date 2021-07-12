@@ -49,6 +49,14 @@ object Functions {
     override def getName: String = "listRef"
   }
 
+  case object StrToChars extends BuildInFunction {
+    override def getName: String = "strToChars"
+  }
+
+  case object StrFromChars extends BuildInFunction {
+    override def getName: String = "strFromChars"
+  }
+
   case object Print extends BuildInFunction {
     override def getName: String = "print"
   }

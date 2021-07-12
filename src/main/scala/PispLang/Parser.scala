@@ -25,6 +25,8 @@ object Parser {
 
   case class PispDouble(value: Double) extends PispValue
 
+  case class PispChar(value: Char) extends PispValue
+
   case class PispStr(value: String) extends PispValue
 
   case class PispList(value: List[PispValue]) extends PispValue
@@ -123,6 +125,12 @@ object Parser {
     _ <- char('.')
     m <- digits
   } yield PispDouble((n + '.' + m).toDouble)
+
+  val char: Parser[PispValue] = for {
+    _ <- char('\'')
+    x <- item
+    _ <- char('\'')
+  } yield PispChar(x)
 
   val pispString: Parser[PispValue] = for {
     _ <- char('"')
@@ -255,6 +263,7 @@ object Parser {
     bool,
     double,
     int,
+    char,
     pispString,
     pispList,
     pispIf,
