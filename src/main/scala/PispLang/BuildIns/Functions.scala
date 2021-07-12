@@ -33,6 +33,14 @@ object Functions {
     override def getName: String = "sub"
   }
 
+  case object Gt extends BuildInFunction {
+    override def getName: String = "gt"
+  }
+
+  case object Lt extends BuildInFunction {
+    override def getName: String = "lt"
+  }
+
   case object Head extends BuildInFunction {
     override def getName: String = "head"
   }

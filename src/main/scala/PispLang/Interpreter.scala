@@ -145,6 +145,8 @@ object Interpreter {
     case Mul => evalBuildInMul(args)
     case Div => evalBuildInDiv(args)
     case Sub => evalBuildInSub(args)
+    case Gt => evalBuildInGt(args)
+    case Lt => evalBuildInLt(args)
     case Head => evalBuildInHead(args)
     case Tail => evalBuildInTail(args).map { s: PispValue => s }
     case Cons => evalBuildInCons(args).map { s: PispValue => s }
@@ -213,6 +215,36 @@ object Interpreter {
       }
     } yield result
     case _ => oops[PispValue](s"Can't apply div to $args")
+  }
+
+  def evalBuildInGt(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(a, b :: Nil) => for {
+      a1 <- eval(a)
+      b1 <- eval(b)
+      result <- (a1, b1) match {
+        case (PispInt(a), PispInt(b)) => (PispBool((a: Double) > (b: Double)): PispValue).pure[Eval]
+        case (PispDouble(a), PispDouble(b)) => (PispBool(a > b): PispValue).pure[Eval]
+        case (PispInt(a), PispDouble(b)) => (PispBool((a: Double) > b): PispValue).pure[Eval]
+        case (PispDouble(a), PispInt(b)) => (PispBool(a > (b: Double)): PispValue).pure[Eval]
+        case _ => oops[PispValue](s"Can't apply gt to ${(a, b)} which eval to ${(a1, b1)}")
+      }
+    } yield result
+    case _ => oops[PispValue](s"Can't apply gt to $args")
+  }
+
+  def evalBuildInLt(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
+    case NonEmptyList(a, b :: Nil) => for {
+      a1 <- eval(a)
+      b1 <- eval(b)
+      result <- (a1, b1) match {
+        case (PispInt(a), PispInt(b)) => (PispBool((a: Double) < (b: Double)): PispValue).pure[Eval]
+        case (PispDouble(a), PispDouble(b)) => (PispBool(a < b): PispValue).pure[Eval]
+        case (PispInt(a), PispDouble(b)) => (PispBool((a: Double) < b): PispValue).pure[Eval]
+        case (PispDouble(a), PispInt(b)) => (PispBool(a < (b: Double)): PispValue).pure[Eval]
+        case _ => oops[PispValue](s"Can't apply lt to ${(a, b)} which eval to ${(a1, b1)}")
+      }
+    } yield result
+    case _ => oops[PispValue](s"Can't apply lt to $args")
   }
 
   //  def evalBuildInSum(args: NonEmptyList[PispValue]): Eval[PispValue] = args match {
@@ -408,6 +440,8 @@ object Interpreter {
     BuildInFunctionDefinition(Mul),
     BuildInFunctionDefinition(Sub),
     BuildInFunctionDefinition(Div),
+    BuildInFunctionDefinition(Gt),
+    BuildInFunctionDefinition(Lt),
     BuildInFunctionDefinition(Head),
     BuildInFunctionDefinition(Tail),
     BuildInFunctionDefinition(Cons),
