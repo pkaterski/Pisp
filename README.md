@@ -2,9 +2,9 @@
 
 <img align="center" src="https://github.com/pkaterski/Pisp/blob/master/img/logo.jpg" width="400">
 
-It's a lisp with a python-like syntax!
+It's a lisp-inspired functional programming language with a python-like syntax.
 
-A functional programming language of the future but also from the past ;)
+A language of the future but also from the past ;)
 
 A very simple concept - everything is a statement and every statement is either a value or a definiton!
 
@@ -101,3 +101,31 @@ input == ? # a variable with a side effect: user input, each time when called it
 # checkout ./examples/IO.pisp for how to use this
 
 ```
+
+### REPL
+
+Pisp provides a REPL where you can play around:
+
+<img align="center" src="https://github.com/pkaterski/Pisp/blob/master/img/repl.png" width="300">
+
+### Interpret Files
+
+Here is an example of the file `examples/IO.pisp` and the output when interpreted.
+```python
+debug("What is your name?")
+def i: input
+i
+
+debug(map(strToChars [
+    "it's so wonderful to meet you, "
+    i
+    "!"
+    ]
+  )@concat@strFromChars)
+debug("And never forget - There shall only be FP!!1 The OOP has to die.")
+debug("Long live Pisp!!")
+```
+output:
+<img align="center" src="https://github.com/pkaterski/Pisp/blob/master/img/file_IO_example.png" width="300">
+
+
