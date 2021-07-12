@@ -117,7 +117,7 @@ object Interpreter {
       case Some(VarDefinition(_, b@_)) => oops[PispValue](s"Can't call value $b with args")
       case Some(FunctionDefinition(_, lambda)) => evalLambdaCall(PispLambdaCall(lambda, v.args))
       case Some(BuildInFunctionDefinition(func)) => evalBuildInFunction(func, v.args)
-      case Some(b@BuildInVarDefinition(_)) => oops[PispValue](s"Can't eval build-in var $b")
+      case Some(b@BuildInVarDefinition(_)) => oops[PispValue](s"Can't call build-in var $b with args")
       case None => oops[PispValue](s"Name ${v.name} is undefined")
     }
   } yield result
