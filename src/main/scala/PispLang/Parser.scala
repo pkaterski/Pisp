@@ -249,15 +249,29 @@ object Parser {
 
   val oneArgFunctionCall: Parser[PispValue] = for {
     arg <- pispValue
-    _ <- char('@') <* ws
-    name <- variableString
-  } yield PispOneArgFunctionCall(name, arg)
+    names <- some(for {
+      _ <- char('@') <* ws
+      name <- variableString <* ws
+    } yield name)
+    firstCall = PispOneArgFunctionCall(names.head, arg)
+    restNames = names.tail
+  } yield restNames.foldl(firstCall) { case (lastCall, name) => PispOneArgFunctionCall(name, lastCall) }
 
   val oneArgLambdaCall: Parser[PispValue] = for {
     arg <- pispValue
-    _ <- char('@') <* ws
-    lambda <- pispLambda
-  } yield PispOneArgLambdaCall(lambda, arg)
+    lambdas <- some(for {
+      _ <- char('@') <* ws
+      lambda <- pispLambda
+    } yield lambda)
+    firstCall = PispOneArgLambdaCall(lambdas.head, arg)
+    restNames = lambdas.tail
+  } yield restNames.foldl(firstCall) { case (lastCall, lambda) => PispOneArgLambdaCall(lambda, lastCall) }
+
+//  val oneArgLambdaCall: Parser[PispValue] = for {
+//    arg <- pispValue
+//    _ <- char('@') <* ws
+//    lambda <- pispLambda
+//  } yield PispOneArgLambdaCall(lambda, arg)
 
   lazy val pispValue: Parser[PispValue] = comments *> ws *> List(
     bool,
