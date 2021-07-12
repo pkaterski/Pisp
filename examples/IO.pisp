@@ -1,7 +1,12 @@
-debug("Kak se kazvash?")
+debug("What is your name?")
 def i: input
 i
-debug("priqtno mi e,")
-debug(i)
-debug("I ne zabravqi, SAMO FP!!1 OOP-to trqbva da umre")
-debug("Da jivee Pisp!!")
+
+debug(map(strToChars [
+    "it's so wonderful to meet you, "
+    i
+    "!"
+    ]
+  )@concat@strFromChars)
+debug("And never forget - There shall only be FP!!1 The OOP has to die.")
+debug("Long live Pisp!!")
