@@ -480,13 +480,13 @@ object Interpreter {
     }
   }
 
-  def interpretFile(path: String): EitherStr[(State, List[Option[PispValue]])] = {
+  def interpretFile(path: String, defs: State): EitherStr[(State, List[Option[PispValue]])] = {
     val buffer = Source.fromFile(path)
     val code = buffer.getLines.mkString("\n")
     buffer.close
     many(pispStatement).run(code) match {
       case Some(("", values)) =>
-        values.map(evalStatement).sequence.run(buildIns)
+        values.map(evalStatement).sequence.run(defs)
       case Some((s, _)) =>
         Left(s"file didn't parse after $s")
       case None =>

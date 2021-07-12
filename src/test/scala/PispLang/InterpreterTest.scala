@@ -7,7 +7,7 @@ import org.scalatest.matchers.should.Matchers
 
 class InterpreterTest extends AnyFlatSpec with Matchers  {
   "prelude" should "not have any errors" in {
-    interpretFile("./lib/prelude.pisp").isRight shouldBe true
+    interpretFile("./lib/prelude.pisp", buildIns).isRight shouldBe true
   }
   "basic build-in Add" should "work for ints" in {
     pispStatement.run("add(1 2)").map(s => evalStatement(s._2).run(buildIns).map(_._2)) shouldBe

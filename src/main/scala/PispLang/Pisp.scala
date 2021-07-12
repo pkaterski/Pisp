@@ -1,12 +1,12 @@
 package PispLang
 
-import PispLang.Interpreter.{State, interpretFile, runREPL}
+import PispLang.Interpreter.{State, buildIns, interpretFile, runREPL}
 import PispLang.Parser._
 
 
 object Pisp extends App {
 
-  val lib = interpretFile("./lib/prelude.pisp")
+  val lib = interpretFile("./lib/prelude.pisp", buildIns)
 
   lib match {
     case Right((defs, _)) => run(defs)
@@ -18,7 +18,7 @@ object Pisp extends App {
       println("Welcome to Pisp!")
       runREPL(defs)
     } else if (args.length == 2 && args(0) == "f") {
-      interpretFile(args(1)) match {
+      interpretFile(args(1), defs) match {
         case Right(_) => ()
         case Left(err) => println(s"File not interpreted properly: $err")
       }
