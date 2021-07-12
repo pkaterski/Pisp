@@ -126,7 +126,7 @@ object Parser {
     m <- digits
   } yield PispDouble((n + '.' + m).toDouble)
 
-  val char: Parser[PispValue] = for {
+  val pispChar: Parser[PispValue] = for {
     _ <- char('\'')
     x <- item
     _ <- char('\'')
@@ -263,7 +263,7 @@ object Parser {
     bool,
     double,
     int,
-    char,
+    pispChar,
     pispString,
     pispList,
     pispIf,
