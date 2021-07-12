@@ -4,7 +4,7 @@
 
 It's a lisp with a python-like syntax!
 
-A FP language of the future but also from the past ;)
+A functional programming language of the future but also from the past ;)
 
 A very simple concept - everything is a statement and every statement is either a value or a definiton!
 
@@ -42,7 +42,7 @@ hoho
 # keywords if/else, cond/case, def, lambda
 
 # if statement
-# if VALUE: VALUE else VALUE
+# if VALUE: VALUE else: VALUE
 if true:
   1
 else:
@@ -61,13 +61,7 @@ cond:
 def x:
   1
 
-def x:
-  def var:
-    1
-  var
-
 def y: 2
-
 
 def z: add(z 1)
 
@@ -80,6 +74,8 @@ def g x y z:
 # lambdas / can be passed around as annonimous functions
 lambda x:
   sum(x 1)
+
+foldl(lambda acc cur: cons(cur acc) [] [1 2 3])
 
 # function calls
 f(x)
