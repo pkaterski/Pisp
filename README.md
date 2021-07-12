@@ -28,6 +28,10 @@ false
 0.5
 1.0
 
+# chars
+'a'
+'('
+
 # strings
 "hohoho"
 
