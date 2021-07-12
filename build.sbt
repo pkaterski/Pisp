@@ -21,3 +21,9 @@ assembly / assemblyMergeStrategy := {
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
 }
+
+lazy val pisp = (project in file("."))
+  .settings(
+    assembly / assemblyJarName := "pisp.jar",
+    // more settings here ...
+  )
