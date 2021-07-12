@@ -398,7 +398,7 @@ object Interpreter {
     case v@PispCond(_, _) => v.toString
     case PispLambda(_) => "<lambda function>"
     case PispVar(n) => s"<variable: $n>"
-    case v@PispList(_) => s"<list $v>"
+    case PispList(l) => s"<${l.map(show)}>"
     case v@PispLambdaCall(_, _) => v.toString
     case v@PispOneArgLambdaCall(lambda, arg) => v.toString
     case v@PispFunctionCall(_, _) => v.toString
@@ -410,7 +410,7 @@ object Interpreter {
   @tailrec
   def display(d: List[Option[PispValue]]): Unit = d match {
     case Some(value) :: xs =>
-      println(value)
+      println(show(value))
       display(xs)
     case None :: xs => display(xs)
     case Nil => ()
