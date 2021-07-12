@@ -1,7 +1,6 @@
 package PispLang
 
 import PispLang.Interpreter.{State, buildIns, interpretFile, runREPL}
-import PispLang.Parser._
 
 
 object Pisp extends App {
