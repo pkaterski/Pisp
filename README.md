@@ -125,7 +125,7 @@ debug(map(strToChars [
 debug("And never forget - There shall only be FP!!1 The OOP has to die.")
 debug("Long live Pisp!!")
 ```
-output:  
+*output*:  
   
 <img align="center" src="https://github.com/pkaterski/Pisp/blob/master/img/file_IO_example.png" width="1000">
 
