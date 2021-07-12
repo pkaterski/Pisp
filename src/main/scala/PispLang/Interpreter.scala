@@ -101,10 +101,11 @@ object Interpreter {
         d = VarDefinition(v, a1)
         ds <- (NonEmptyList.fromList(vs), NonEmptyList.fromList(as)) match {
           case (Some(vs), Some(as)) => matchVarsArgs(vs, as)
-          case _ => List().pure[Eval]
+          case (Some(_), None) => oops[State](s"Argument mismatch:\nvars: $vars\nargs: $args")
+          case (None, Some(_)) => oops[State](s"Argument mismatch:\nvars: $vars\nargs: $args")
+          case (None, None) => List().pure[Eval]
         }
       } yield d :: ds
-      case _ => oops[State](s"Argument mismatch: vars: $vars\nargs: $args")
     }
   } yield ds
 
