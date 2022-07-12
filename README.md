@@ -3,6 +3,8 @@
   <img align="center" src="https://github.com/pkaterski/Pisp/blob/master/img/logo.png" width="400">
 </p>
 
+<hr>
+
 It's a lisp-inspired functional programming language with a python-like syntax.
 
 A language of the future but also from the past ;)
