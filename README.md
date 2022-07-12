@@ -1,4 +1,4 @@
-# The Pisp Programming Language
+<h1 align="center">The Pisp Programming Language</h1>
 <p align="center">
   <img align="center" src="https://github.com/pkaterski/Pisp/blob/master/img/logo.jpg" width="400">
 </p>
