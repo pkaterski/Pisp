@@ -1,6 +1,7 @@
 # The Pisp Programming Language
-
-<img align="center" src="https://github.com/pkaterski/Pisp/blob/master/img/logo.jpg" width="400">
+<p align="center">
+  <img align="center" src="https://github.com/pkaterski/Pisp/blob/master/img/logo.jpg" width="400">
+</p>
 
 It's a lisp-inspired functional programming language with a python-like syntax.
 
