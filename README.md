@@ -57,10 +57,10 @@ if true: 1 else: 2
 
 # cond statements
 cond:
-  case 1 == 2: "one"
-  case 2 == 2: "two"
-  case 3 == 3: "three"
-  else: "opa"
+  case eq(1 2): "nope"
+  case eq(2 2): "yes"
+  case eq(3 3): "not gonna reach"
+  else: "otherwise"
 
 # definitions
 def x:
